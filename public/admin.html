@@ -1,0 +1,3139 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataSell - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e40af;
+            --secondary: #64748b;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --info: #0891b2;
+            --light: #f8fafc;
+            --dark: #0f172a;
+            --text: #334155;
+            --border: #e2e8f0;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #f1f5f9;
+            --header-bg: #ffffff;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+            --sidebar-width: 280px;
+            --sidebar-collapsed: 80px;
+        }
+
+        [data-bs-theme="dark"] {
+            --light: #1e293b;
+            --dark: #f8fafc;
+            --text: #cbd5e1;
+            --border: #334155;
+            --sidebar-bg: #0f172a;
+            --sidebar-text: #f1f5f9;
+            --header-bg: #1e293b;
+            --card-bg: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: var(--light);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .admin-header {
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+            transition: all 0.3s ease;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .sidebar-toggle {
+            border: none;
+            background: var(--primary);
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+
+        .logo-icon {
+            background: var(--primary);
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .theme-toggle {
+            border: none;
+            background: var(--light);
+            border-radius: 8px;
+            padding: 0.75rem;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 70px;
+        }
+
+        .admin-sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            height: calc(100vh - 70px);
+            position: fixed;
+            left: 0;
+            top: 70px;
+            transition: all 0.3s ease;
+            z-index: 999;
+            overflow-y: auto;
+            border-right: 1px solid var(--border);
+        }
+
+        .admin-sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 1.5rem 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 0 8px 8px 0;
+            margin-right: 1rem;
+            min-height: 50px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 22px;
+            margin-right: 1rem;
+            transition: margin 0.3s ease;
+            flex-shrink: 0;
+            font-size: 1.1rem;
+        }
+
+        .admin-sidebar.collapsed .nav-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+        .admin-sidebar.collapsed .nav-link i {
+            margin-right: 0;
+        }
+
+        .admin-main {
+            flex: 1;
+            padding: 2rem;
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s ease;
+        }
+
+        .admin-sidebar.collapsed ~ .admin-main {
+            margin-left: var(--sidebar-collapsed);
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .cute-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .cute-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-cards .card {
+            border: none;
+            border-radius: var(--radius);
+            color: white;
+            transition: all 0.3s ease;
+            min-height: 130px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .stats-cards .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stats-cards .card-primary {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+        }
+
+        .stats-cards .card-success {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+
+        .stats-cards .card-warning {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+        }
+
+        .stats-cards .card-info {
+            background: linear-gradient(135deg, #0891b2, #06b6d4);
+        }
+
+        .cute-input {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            background: var(--card-bg);
+        }
+
+        .cute-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+            outline: none;
+        }
+
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: var(--text);
+            background: var(--light);
+            padding: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table-hover tbody tr:hover {
+            background: rgba(30, 58, 138, 0.05);
+        }
+
+        .badge {
+            padding: 0.5rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .btn {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 45px;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            border: none;
+        }
+
+        .btn-success:hover {
+            background: #047857;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            border: none;
+        }
+
+        .btn-warning:hover {
+            background: #b45309;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-header h3 {
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: var(--primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Enhanced Package Cards */
+        .package-card {
+            border: none;
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.4s ease;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: linear-gradient(135deg, var(--card-bg), rgba(30, 58, 138, 0.05));
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .package-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+        }
+
+        .package-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .package-card.active {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.1), rgba(16, 185, 129, 0.05));
+            border: 2px solid var(--success);
+        }
+
+        .package-card.inactive {
+            background: linear-gradient(135deg, rgba(100, 116, 139, 0.1), rgba(148, 163, 184, 0.05));
+            opacity: 0.7;
+        }
+
+        .package-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .package-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .package-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        .package-details {
+            margin-bottom: 1rem;
+        }
+
+        .package-validity {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .package-price {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .package-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: space-between;
+        }
+
+        .package-action-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+
+        .package-action-btn.edit {
+            background: rgba(30, 58, 138, 0.1);
+            color: var(--primary);
+        }
+
+        .package-action-btn.edit:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .package-action-btn.toggle {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .package-action-btn.toggle:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        .package-action-btn.suspend {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .package-action-btn.suspend:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+            display: none;
+        }
+
+        /* Enhanced Stats Icons */
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            font-size: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Network Tabs Enhancement */
+        .network-tabs .nav-link {
+            border-radius: 10px;
+            margin: 0 0.25rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .network-tabs .nav-link.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+        }
+
+        /* User Management Enhancements */
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .admin-header {
+                padding: 1rem;
+            }
+            
+            .admin-main {
+                padding: 1rem;
+                margin-left: 0 !important;
+            }
+            
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .admin-sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .mobile-overlay.mobile-open {
+                display: block;
+            }
+            
+            .stats-cards .card {
+                min-height: 110px;
+            }
+            
+            .package-card {
+                padding: 1rem;
+                min-height: 160px;
+            }
+            
+            .package-actions {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+        }
+
+        /* Role Badge Classes */
+        .badge-regular { background: linear-gradient(135deg, #6b7280, #9ca3af); }
+        .badge-vip { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .badge-premium { background: linear-gradient(135deg, #10b981, #34d399); }
+        .badge-admin { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+
+        /* Status Badge Classes */
+        .badge-success { background: linear-gradient(135deg, #10b981, #34d399); }
+        .badge-pending { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .badge-failed { background: linear-gradient(135deg, #ef4444, #f87171); }
+        .badge-refunded { background: linear-gradient(135deg, #6b7280, #9ca3af); }
+        .badge-processing { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+
+        /* Search Box Enhancement */
+        .search-box {
+            position: relative;
+        }
+
+        .search-box .form-control {
+            padding-left: 2.5rem;
+            border-radius: 25px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text);
+            opacity: 0.7;
+        }
+
+        /* Animation for Cards */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-card {
+            animation: slideInUp 0.6s ease forwards;
+        }
+
+        /* SweetAlert Customization */
+        .swal2-popup {
+            border-radius: 20px !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .swal2-title {
+            font-size: 1.5rem !important;
+            font-weight: 700 !important;
+            color: #1f2937 !important;
+        }
+
+        .swal2-html-container {
+            font-size: 1rem !important;
+            color: #6b7280 !important;
+        }
+
+        .swal2-confirm {
+            border-radius: 10px !important;
+            padding: 0.75rem 2rem !important;
+            font-weight: 600 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-left">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <span class="logo-text">DataSell Admin</span>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="dropdown profile-dropdown">
+                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span id="adminName">Administrator</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>My Profile</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar" id="adminSidebar">
+            <ul class="sidebar-nav">
+                <li class="nav-item">
+                    <a href="#dashboard" class="nav-link active" data-section="dashboard">
+                        <i class="fas fa-chart-pie"></i>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#users" class="nav-link" data-section="users">
+                        <i class="fas fa-users"></i>
+                        <span class="nav-text">User Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#packages" class="nav-link" data-section="packages">
+                        <i class="fas fa-cube"></i>
+                        <span class="nav-text">Package Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#orders" class="nav-link" data-section="orders">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="nav-text">Order Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#pricing" class="nav-link" data-section="pricing">
+                        <i class="fas fa-tags"></i>
+                        <span class="nav-text">Pricing Control</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#reports" class="nav-link" data-section="reports">
+                        <i class="fas fa-chart-line"></i>
+                        <span class="nav-text">Revenue Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#system" class="nav-link" data-section="system">
+                        <i class="fas fa-heart-pulse"></i>
+                        <span class="nav-text">System Monitoring</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#security" class="nav-link" data-section="security">
+                        <i class="fas fa-shield-alt"></i>
+                        <span class="nav-text">Security</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main" id="adminMain">
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="section-header">
+                    <h3><i class="fas fa-chart-pie"></i>Dashboard Overview</h3>
+                    <p class="text-muted mt-2">Real-time analytics and performance metrics</p>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="row stats-cards">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card card-primary animate-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h4 class="card-title" id="totalUsers">0</h4>
+                                        <p class="card-text">Total Users</p>
+                                    </div>
+                                    <div class="stats-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <small><i class="fas fa-arrow-up text-success me-1"></i> <span id="userGrowth">0%</span> growth this month</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card card-success animate-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h4 class="card-title" id="totalRevenue">₵0</h4>
+                                        <p class="card-text">Total Revenue</p>
+                                    </div>
+                                    <div class="stats-icon">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <small><i class="fas fa-arrow-up text-white me-1"></i> <span id="revenueGrowth">0%</span> from last month</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card card-warning animate-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h4 class="card-title" id="totalTransactions">0</h4>
+                                        <p class="card-text">Total Transactions</p>
+                                    </div>
+                                    <div class="stats-icon">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <small><i class="fas fa-arrow-up text-white me-1"></i> <span id="transactionGrowth">0%</span> increase</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card card-info animate-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h4 class="card-title" id="todayRevenue">₵0</h4>
+                                        <p class="card-text">Today's Revenue</p>
+                                    </div>
+                                    <div class="stats-icon">
+                                        <i class="fas fa-fire"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <small><i class="fas fa-bolt text-white me-1"></i> Real-time tracking</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Stats -->
+                <div class="row">
+                    <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="card cute-card">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-chart-line fa-3x text-primary"></i>
+                                </div>
+                                <h3 class="text-primary" id="successRate">0%</h3>
+                                <p class="text-muted">Success Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="card cute-card">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-user-plus fa-3x text-primary"></i>
+                                </div>
+                                <h3 class="text-primary" id="newUsers">0</h3>
+                                <p class="text-muted">New Users (30d)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="card cute-card">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-bolt fa-3x text-primary"></i>
+                                </div>
+                                <h3 class="text-primary" id="todayTransactions">0</h3>
+                                <p class="text-muted">Today's Transactions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charts and Additional Info -->
+                <div class="row mt-4">
+                    <div class="col-lg-8">
+                        <div class="card cute-card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-fire me-2"></i>Recent Transactions</h5>
+                                <button class="btn btn-sm btn-primary" onclick="loadRecentTransactions()">
+                                    <i class="fas fa-sync-alt"></i> Refresh
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>User</th>
+                                                <th>Network</th>
+                                                <th>Package</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recentTransactionsBody">
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted">Loading transactions...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card cute-card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-network-wired me-2"></i>System Status</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="systemStatus">
+                                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                                        <span class="d-flex align-items-center">
+                                            <i class="fas fa-satellite-dish me-2 text-primary"></i>
+                                            Hubnet API
+                                        </span>
+                                        <span class="badge bg-secondary" id="hubnetStatus">Checking...</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                                        <span class="d-flex align-items-center">
+                                            <i class="fas fa-credit-card me-2 text-success"></i>
+                                            Paystack
+                                        </span>
+                                        <span class="badge bg-secondary" id="paystackStatus">Checking...</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                                        <span class="d-flex align-items-center">
+                                            <i class="fas fa-database me-2 text-info"></i>
+                                            Firebase
+                                        </span>
+                                        <span class="badge bg-success">Online</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                                        <span class="d-flex align-items-center">
+                                            <i class="fas fa-chart-line me-2 text-warning"></i>
+                                            Success Rate
+                                        </span>
+                                        <span class="badge bg-success" id="systemSuccessRate">100%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card cute-card mt-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Top Packages</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="topPackagesList">
+                                    <div class="text-center text-muted">
+                                        <i class="fas fa-spinner fa-spin"></i> Loading top packages...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Management Section -->
+            <section id="users-section" class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-users"></i>User Management</h3>
+                    <p class="text-muted mt-2">Manage all registered users and their wallets</p>
+                </div>
+                
+                <div class="card cute-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">All Users</h5>
+                        <div class="header-actions">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" class="form-control cute-input" id="userSearch" 
+                                       placeholder="Search users..." style="width: 300px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="usersTable">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Role</th>
+                                        <th>Wallet Balance</th>
+                                        <th>Total Spent</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Loading users...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Enhanced Package Management Section -->
+            <section id="packages-section" class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-cube"></i>Package Management</h3>
+                    <p class="text-muted mt-2">Manage data packages and pricing for MTN and AirtelTigo</p>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <ul class="nav nav-pills network-tabs" id="networkTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-bs-toggle="pill" href="#mtn-packages">
+                                    <i class="fas fa-signal me-2"></i>MTN Packages
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="pill" href="#at-packages">
+                                    <i class="fas fa-wifi me-2"></i>AirtelTigo Packages
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tab-content">
+                    <!-- MTN Packages -->
+                    <div class="tab-pane fade show active" id="mtn-packages">
+                        <div class="card cute-card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-signal me-2 text-success"></i>MTN Data Packages</h5>
+                                <div>
+                                    <button class="btn btn-sm btn-primary" onclick="showBulkUpdateModal('mtn')">
+                                        <i class="fas fa-edit me-1"></i>Bulk Update
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row" id="mtnPackagesGrid">
+                                    <div class="col-12 text-center text-muted py-5">
+                                        <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                                        <p>Loading MTN packages...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AirtelTigo Packages -->
+                    <div class="tab-pane fade" id="at-packages">
+                        <div class="card cute-card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-wifi me-2 text-primary"></i>AirtelTigo Data Packages</h5>
+                                <div>
+                                    <button class="btn btn-sm btn-primary" onclick="showBulkUpdateModal('at')">
+                                        <i class="fas fa-edit me-1"></i>Bulk Update
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row" id="atPackagesGrid">
+                                    <div class="col-12 text-center text-muted py-5">
+                                        <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                                        <p>Loading AirtelTigo packages...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Order Management Section -->
+            <section id="orders-section" class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-shopping-cart"></i>Order Management</h3>
+                    <p class="text-muted mt-2">View and manage all transactions</p>
+                </div>
+
+                <!-- Filters -->
+                <div class="card cute-card mb-4">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-select cute-input" id="filterStatus">
+                                    <option value="all">All Status</option>
+                                    <option value="success">Success</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="failed">Failed</option>
+                                    <option value="refunded">Refunded</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Network</label>
+                                <select class="form-select cute-input" id="filterNetwork">
+                                    <option value="all">All Networks</option>
+                                    <option value="mtn">MTN</option>
+                                    <option value="at">AirtelTigo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">From Date</label>
+                                <input type="date" class="form-control cute-input" id="filterDateFrom">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">To Date</label>
+                                <input type="date" class="form-control cute-input" id="filterDateTo">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Search</label>
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" class="form-control cute-input" id="filterSearch" 
+                                           placeholder="Search by phone, reference, or package...">
+                                </div>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <button class="btn btn-primary me-2" onclick="loadTransactions()">
+                                    <i class="fas fa-filter me-1"></i>Apply Filters
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="clearFilters()">
+                                    <i class="fas fa-times me-1"></i>Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card cute-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">All Transactions</h5>
+                        <div class="text-muted" id="transactionsCount">0 transactions found</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>User</th>
+                                        <th>Network</th>
+                                        <th>Package</th>
+                                        <th>Phone</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsTableBody">
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted">Loading transactions...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pricing Control Section -->
+            <section id="pricing-section" class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-tags"></i>Pricing Control</h3>
+                    <p class="text-muted mt-2">Manage dynamic pricing and user groups</p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card cute-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Pricing Groups</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="pricingGroupsList">
+                                    <div class="text-center text-muted py-4">
+                                        <i class="fas fa-spinner fa-spin"></i> Loading pricing groups...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card cute-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-primary" onclick="showSeasonalPricingModal()">
+                                        <i class="fas fa-calendar me-2"></i>Seasonal Pricing
+                                    </button>
+                                    <button class="btn btn-outline-info" onclick="showBulkPricingModal()">
+                                        <i class="fas fa-edit me-2"></i>Bulk Price Update
+                                    </button>
+                                    <button class="btn btn-outline-success" onclick="exportPricing()">
+                                        <i class="fas fa-download me-2"></i>Export Pricing
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Revenue Reports Section -->
+            <section id="reports-section" class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-chart-line"></i>Revenue Reports</h3>
+                    <p class="text-muted mt-2">Sales analytics and financial reports</p>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="card cute-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Sales Report</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <select class="form-select cute-input" id="reportPeriod" onchange="loadSalesReport()">
+                                            <option value="daily">Today</option>
+                                            <option value="weekly">This Week</option>
+                                            <option value="monthly">This Month</option>
+                                            <option value="yearly">This Year</option>
+                                            <option value="all">All Time</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button class="btn btn-primary w-100" onclick="exportReport()">
+                                            <i class="fas fa-download me-2"></i>Export Report
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="salesReportContent">
+                                    <div class="text-center text-muted py-4">
+                                        <i class="fas fa-chart-bar fa-2x mb-3"></i>
+                                        <p>Select a period to view sales report</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card cute-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Quick Stats</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="quickStats">
+                                    <div class="text-center text-muted py-4">
+                                        <i class="fas fa-spinner fa-spin"></i> Loading quick stats...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Monitoring Section -->
+            <section id="system-section" class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-heart-pulse"></i>System Monitoring</h3>
+                    <p class="text-muted mt-2">Monitor system health and API status</p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card cute-card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">API Status</h5>
+                                <button class="btn btn-sm btn-primary" onclick="checkSystemStatus()">
+                                    <i class="fas fa-sync-alt"></i> Refresh
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="apiStatusList">
+                                    <div class="text-center text-muted py-4">
+                                        <i class="fas fa-spinner fa-spin"></i> Checking API status...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card cute-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">System Metrics</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="systemMetrics">
+                                    <div class="text-center text-muted py-4">
+                                        <i class="fas fa-spinner fa-spin"></i> Loading system metrics...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card cute-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Recent Errors</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="errorLogs">
+                                    <div class="text-center text-muted py-4">
+                                        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                                        <p>No recent errors found</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Security Section -->
+            <section id="security-section" class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-shield-alt"></i>Security & Access Control</h3>
+                    <p class="text-muted mt-2">Monitor security events and manage access</p>
+                </div>
+
+                <div class="card cute-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Admin Activity Logs</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Admin</th>
+                                        <th>Action</th>
+                                        <th>Details</th>
+                                        <th>IP Address</th>
+                                        <th>Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="securityLogsBody">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">Loading security logs...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Role Update Modal -->
+    <div class="modal fade" id="roleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content cute-card">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-user-tag me-2"></i>Update User Role</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="roleForm">
+                        <input type="hidden" id="roleUserId">
+                        <div class="mb-3">
+                            <label class="form-label">User</label>
+                            <p class="form-control-plaintext fw-bold" id="roleUserName"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Current Role</label>
+                            <p class="form-control-plaintext" id="currentRole"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">New Role</label>
+                            <select class="form-select cute-input" id="newRole">
+                                <option value="regular">Regular User (0% discount)</option>
+                                <option value="vip">VIP User (10% discount)</option>
+                                <option value="premium">Premium User (15% discount)</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updateUserRole()">
+                        <i class="fas fa-save me-1"></i>Update Role
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Funds Modal -->
+    <div class="modal fade" id="addFundsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content cute-card">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>Add Funds to User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addFundsForm">
+                        <input type="hidden" id="fundsUserId">
+                        <div class="mb-3">
+                            <label class="form-label">User</label>
+                            <input type="text" class="form-control cute-input" id="fundsUserName" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Amount (₵)</label>
+                            <input type="number" class="form-control cute-input" id="fundsAmount" 
+                                   min="1" step="0.01" required placeholder="Enter amount">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Note</label>
+                            <textarea class="form-control cute-input" id="fundsNote" 
+                                      rows="3" placeholder="Reason for adding funds..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmAddFunds">
+                        <i class="fas fa-plus me-1"></i>Add Funds
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Deduct Funds Modal -->
+    <div class="modal fade" id="deductFundsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content cute-card">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-minus-circle me-2 text-danger"></i>Deduct Funds from User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="deductFundsForm">
+                        <input type="hidden" id="deductFundsUserId">
+                        <div class="mb-3">
+                            <label class="form-label">User</label>
+                            <input type="text" class="form-control cute-input" id="deductFundsUserName" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Current Balance</label>
+                            <input type="text" class="form-control cute-input" id="currentUserBalance" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Amount to Deduct (₵)</label>
+                            <input type="number" class="form-control cute-input" id="deductFundsAmount" 
+                                   min="0.01" step="0.01" required placeholder="Enter amount to deduct">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Reason</label>
+                            <textarea class="form-control cute-input" id="deductFundsReason" 
+                                      rows="3" placeholder="Reason for deducting funds..." required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeductFunds">
+                        <i class="fas fa-minus me-1"></i>Deduct Funds
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Edit Package Price Modal -->
+    <div class="modal fade" id="editPriceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content cute-card">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Package Price</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPriceForm">
+                        <input type="hidden" id="editPackageNetwork">
+                        <input type="hidden" id="editPackageId">
+                        <div class="text-center mb-4">
+                            <div class="package-icon mb-3">
+                                <i class="fas fa-cube fa-3x text-primary"></i>
+                            </div>
+                            <h4 id="editPackageName" class="text-primary">Package Name</h4>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label">Current Price</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₵</span>
+                                    <input type="text" class="form-control cute-input" id="editCurrentPrice" readonly>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">New Price</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₵</span>
+                                    <input type="number" class="form-control cute-input" id="editNewPrice" 
+                                           min="0.1" step="0.01" required placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price Change</label>
+                            <div id="priceChangeIndicator" class="p-3 rounded text-center">
+                                <span id="priceChangeText" class="fw-bold">No change</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmEditPrice">
+                        <i class="fas fa-save me-1"></i>Update Price
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Update Modal -->
+    <div class="modal fade" id="bulkUpdateModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content cute-card">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-cogs me-2"></i>Bulk Price Update</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="bulkUpdateForm">
+                        <input type="hidden" id="bulkUpdateNetwork">
+                        <div class="mb-3">
+                            <label class="form-label">Update Type</label>
+                            <select class="form-select cute-input" id="bulkUpdateType">
+                                <option value="percentage">Percentage Change</option>
+                                <option value="fixed">Fixed Amount Change</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="percentageField">
+                            <label class="form-label">Percentage Change (%)</label>
+                            <input type="number" class="form-control cute-input" id="bulkPercentage" 
+                                   step="0.1" placeholder="e.g., 10 for 10% increase, -5 for 5% decrease">
+                        </div>
+                        <div class="mb-3 d-none" id="fixedField">
+                            <label class="form-label">Fixed Amount Change (₵)</label>
+                            <input type="number" class="form-control cute-input" id="bulkFixedAmount" 
+                                   step="0.01" placeholder="e.g., 2.50 for increase, -1.00 for decrease">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmBulkUpdate">
+                        <i class="fas fa-cogs me-1"></i>Apply Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refund Modal -->
+    <div class="modal fade" id="refundModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content cute-card">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-undo me-2"></i>Process Refund</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="refundForm">
+                        <input type="hidden" id="refundTransactionId">
+                        <div class="mb-3">
+                            <label class="form-label">Transaction Details</label>
+                            <div class="p-3 bg-light rounded">
+                                <strong>Amount:</strong> <span id="refundAmount"></span><br>
+                                <strong>User:</strong> <span id="refundUser"></span><br>
+                                <strong>Package:</strong> <span id="refundPackage"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Refund Reason</label>
+                            <textarea class="form-control cute-input" id="refundReason" 
+                                      rows="3" placeholder="Enter reason for refund..." required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmRefund">
+                        <i class="fas fa-undo me-1"></i>Process Refund
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    
+    <script>
+        // Initialize SweetAlert
+        const Swal = window.Swal;
+
+        // SweetAlert configuration
+        const showAlert = (icon, title, text, confirmButtonText = 'OK') => {
+            return Swal.fire({
+                icon,
+                title,
+                text,
+                confirmButtonText,
+                customClass: {
+                    confirmButton: 'btn btn-primary'
+                },
+                buttonsStyling: false
+            });
+        };
+
+        const showSuccess = (title, text) => showAlert('success', title, text);
+        const showError = (title, text) => showAlert('error', title, text);
+        const showWarning = (title, text) => showAlert('warning', title, text);
+        const showInfo = (title, text) => showAlert('info', title, text);
+
+        // Enhanced confirmation dialog
+        const showConfirm = (title, text, confirmButtonText = 'Yes, proceed') => {
+            return Swal.fire({
+                title,
+                text,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText,
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger me-2',
+                    cancelButton: 'btn btn-secondary'
+                },
+                buttonsStyling: false
+            });
+        };
+
+        // Global Variables
+        let currentUsers = [];
+        let currentTransactions = [];
+        let currentPackages = { mtn: [], at: [] };
+        let isLoading = false;
+
+        // DOM Elements
+        const sidebar = document.getElementById('adminSidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const themeToggle = document.getElementById('themeToggle');
+        const adminMain = document.getElementById('adminMain');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const contentSections = document.querySelectorAll('.content-section');
+
+// ==================== UTILITY FUNCTIONS ====================
+        
+// Enhanced API call wrapper
+async function makeApiCall(url, options = {}) {
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            },
+            ...options
+        });
+        
+        if (response.status === 401) {
+            window.location.href = '/admin-login';
+            return null;
+        }
+        
+        if (response.status === 403) {
+            showError('Access Denied', 'Admin privileges required.');
+            return null;
+        }
+        
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('API call failed:', error);
+        showError('Network Error', 'Please check your connection.');
+        return null;
+    }
+}
+
+// Loading state management
+function setLoading(state) {
+    isLoading = state;
+    document.querySelectorAll('button').forEach(btn => {
+        if (!btn.classList.contains('logout-btn')) {
+            btn.disabled = state;
+        }
+    });
+}
+
+// Safe API call wrapper
+async function safeApiCall(apiFunction, loadingMessage = 'Processing...') {
+    if (isLoading) return;
+    
+    setLoading(true);
+    try {
+        await apiFunction();
+    } catch (error) {
+        console.error('Operation failed:', error);
+        showError('Operation Failed', 'Please try again.');
+    } finally {
+        setLoading(false);
+    }
+}
+
+// Package ID normalization function
+function normalizePackageId(packageId, network) {
+    if (!packageId) return packageId;
+    
+    let normalizedId = packageId.replace(`${network}-`, '');
+    
+    const keyMap = {
+        '1gb': '1gb',
+        '2gb': '2', '2': '2',
+        '3gb': '3', '3': '3',
+        '4gb': '4', '4': '4',
+        '5gb': '5', '5': '5',
+        '6gb': '6', '6': '6',
+        '7gb': '7', '7': '7',
+        '8gb': '8', '8': '8',
+        '9gb': '9', '9': '9',
+        '10gb': '10', '10': '10',
+        '20gb': '20', '20': '20',
+        '30gb': '30', '30': '30',
+        '40gb': '40', '40': '40',
+        '50gb': '50', '50': '50',
+        '60gb': '60', '60': '60',
+        '70gb': '70', '70': '70',
+        '80gb': '80', '80': '80',
+        '90gb': '90', '90': '90',
+        '100gb': '100gb'
+    };
+    
+    return keyMap[normalizedId] || normalizedId;
+}
+
+// Status badge classes
+function getStatusBadgeClass(status) {
+    switch(status) {
+        case 'success': return 'badge-success';
+        case 'pending': return 'badge-pending';
+        case 'failed': return 'badge-failed';
+        case 'refunded': return 'badge-refunded';
+        case 'processing': return 'badge-processing';
+        default: return 'badge-processing';
+    }
+}
+
+// Role badge classes
+function getRoleBadgeClass(role) {
+    switch(role) {
+        case 'regular': return 'badge-regular';
+        case 'vip': return 'badge-vip';
+        case 'premium': return 'badge-premium';
+        case 'admin': return 'badge-admin';
+        default: return 'badge-regular';
+    }
+}
+
+// ==================== AUTHENTICATION & INITIALIZATION ====================
+
+// Check admin authentication
+async function checkAdminAuth() {
+    try {
+        const response = await fetch('/api/user');
+        const result = await response.json();
+        
+        if (!result.success || !result.user || !result.user.isAdmin) {
+            window.location.href = '/admin-login';
+            return false;
+        }
+        
+        document.getElementById('adminName').textContent = result.user.displayName || 'Admin';
+        return true;
+    } catch (error) {
+        console.error('Auth check failed:', error);
+        window.location.href = '/admin-login';
+        return false;
+    }
+}
+
+// Logout function
+async function logout() {
+    const result = await showConfirm('Logout', 'Are you sure you want to logout?', 'Yes, Logout');
+    if (result.isConfirmed) {
+        try {
+            const response = await fetch('/api/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                window.location.href = '/admin-login';
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+            window.location.href = '/admin-login';
+        }
+    }
+}
+
+// Initialize Admin Dashboard
+document.addEventListener('DOMContentLoaded', async function() {
+    const isAuthenticated = await checkAdminAuth();
+    if (!isAuthenticated) return;
+
+    initializeAdmin();
+    loadDashboardData();
+    loadUsers();
+    loadPackages();
+    loadTransactions();
+    loadSystemStatus();
+    loadPricingGroups();
+    loadSalesReport();
+    loadSecurityLogs();
+});
+
+// Initialize Admin Functions
+function initializeAdmin() {
+    // Sidebar Toggle
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+    });
+
+    // Mobile sidebar handling
+    function initMobileSidebar() {
+        const overlay = document.getElementById('mobileOverlay');
+        
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('mobile-open');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('mobile-open');
+        });
+
+        if (window.innerWidth <= 768) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('mobile-open');
+                    overlay.classList.remove('mobile-open');
+                });
+            });
+        }
+    }
+
+    // Theme Toggle
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-bs-theme', newTheme);
+        themeToggle.innerHTML = newTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+        localStorage.setItem('admin-theme', newTheme);
+    });
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('admin-theme') || 'light';
+    document.documentElement.setAttribute('data-bs-theme', savedTheme);
+    themeToggle.innerHTML = savedTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+
+    // Navigation
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const section = link.getAttribute('data-section');
+            
+            // Update active states
+            navLinks.forEach(nl => nl.classList.remove('active'));
+            link.classList.add('active');
+            
+            // Show correct section
+            contentSections.forEach(s => s.classList.remove('active'));
+            document.getElementById(`${section}-section`).classList.add('active');
+
+            // Refresh section data
+            refreshSectionData(section);
+        });
+    });
+
+    // Event Listeners for Modals
+    document.getElementById('confirmAddFunds').addEventListener('click', () => {
+        safeApiCall(addFundsToUser, 'Adding funds...');
+    });
+
+    document.getElementById('confirmDeductFunds').addEventListener('click', () => {
+        safeApiCall(deductFundsFromUser, 'Deducting funds...');
+    });
+
+    document.getElementById('confirmEditPrice').addEventListener('click', () => {
+        safeApiCall(updatePackagePrice, 'Updating price...');
+    });
+
+    document.getElementById('confirmBulkUpdate').addEventListener('click', () => {
+        safeApiCall(applyBulkUpdate, 'Applying bulk update...');
+    });
+
+    document.getElementById('confirmRefund').addEventListener('click', () => {
+        safeApiCall(processRefund, 'Processing refund...');
+    });
+
+    // Enhanced package price change indicator
+    document.getElementById('editNewPrice').addEventListener('input', updatePriceChangeIndicator);
+
+    document.getElementById('bulkUpdateType').addEventListener('change', toggleBulkUpdateFields);
+    document.getElementById('userSearch').addEventListener('input', filterUsers);
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+
+    // Initialize mobile sidebar
+    initMobileSidebar();
+
+    // Auto-refresh dashboard every 30 seconds
+    setInterval(() => {
+        if (document.getElementById('dashboard-section').classList.contains('active')) {
+            loadDashboardData();
+            loadSystemStatus();
+        }
+    }, 30000);
+}
+
+// Update price change indicator
+function updatePriceChangeIndicator() {
+    const currentPrice = parseFloat(document.getElementById('editCurrentPrice').value) || 0;
+    const newPrice = parseFloat(document.getElementById('editNewPrice').value) || 0;
+    const indicator = document.getElementById('priceChangeIndicator');
+    const text = document.getElementById('priceChangeText');
+
+    if (newPrice === currentPrice) {
+        indicator.className = 'p-3 rounded text-center bg-light';
+        text.textContent = 'No change';
+        text.className = 'fw-bold text-muted';
+    } else if (newPrice > currentPrice) {
+        indicator.className = 'p-3 rounded text-center bg-success bg-opacity-10';
+        text.textContent = `Increase: ₵${(newPrice - currentPrice).toFixed(2)} (+${(((newPrice - currentPrice) / currentPrice) * 100).toFixed(1)}%)`;
+        text.className = 'fw-bold text-success';
+    } else {
+        indicator.className = 'p-3 rounded text-center bg-danger bg-opacity-10';
+        text.textContent = `Decrease: ₵${(currentPrice - newPrice).toFixed(2)} (-${(((currentPrice - newPrice) / currentPrice) * 100).toFixed(1)}%)`;
+        text.className = 'fw-bold text-danger';
+    }
+}
+
+// Refresh section data when navigated to
+function refreshSectionData(section) {
+    switch(section) {
+        case 'dashboard':
+            loadDashboardData();
+            loadSystemStatus();
+            break;
+        case 'users':
+            loadUsers();
+            break;
+        case 'packages':
+            loadPackages();
+            break;
+        case 'orders':
+            loadTransactions();
+            break;
+        case 'pricing':
+            loadPricingGroups();
+            break;
+        case 'reports':
+            loadSalesReport();
+            break;
+        case 'system':
+            loadSystemStatus();
+            break;
+        case 'security':
+            loadSecurityLogs();
+            break;
+    }
+}
+
+// ==================== DASHBOARD FUNCTIONS ====================
+
+async function loadDashboardData() {
+    try {
+        const response = await fetch('/api/admin/dashboard/stats');
+        const result = await response.json();
+        
+        if (result.success) {
+            const stats = result.stats;
+            // Update basic stats
+            document.getElementById('totalUsers').textContent = stats.totalUsers.toLocaleString();
+            document.getElementById('totalRevenue').textContent = `₵${stats.totalRevenue.toLocaleString()}`;
+            document.getElementById('totalTransactions').textContent = stats.totalTransactions.toLocaleString();
+            document.getElementById('todayRevenue').textContent = `₵${stats.todayRevenue.toLocaleString()}`;
+            document.getElementById('todayTransactions').textContent = stats.todayTransactions.toLocaleString();
+            document.getElementById('successRate').textContent = `${stats.successRate}%`;
+            document.getElementById('newUsers').textContent = stats.newUsers.toLocaleString();
+            document.getElementById('systemSuccessRate').textContent = `${stats.successRate}%`;
+
+            // Update top packages
+            updateTopPackages(stats.topPackages);
+            
+            // Load recent transactions
+            loadRecentTransactions();
+        } else {
+            showError('Dashboard Error', 'Failed to load dashboard data');
+        }
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        showError('Dashboard Error', 'Failed to load dashboard data');
+    }
+}
+
+function updateTopPackages(topPackages) {
+    const container = document.getElementById('topPackagesList');
+    if (!topPackages || topPackages.length === 0) {
+        container.innerHTML = '<p class="text-muted">No package sales data available</p>';
+        return;
+    }
+
+    container.innerHTML = topPackages.map(pkg => `
+        <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+            <span class="fw-semibold">${pkg.name}</span>
+            <span class="badge bg-primary">${pkg.count} sales</span>
+        </div>
+    `).join('');
+}
+
+async function loadRecentTransactions() {
+    try {
+        const response = await fetch('/api/admin/transactions?limit=10');
+        const result = await response.json();
+        
+        if (result.success) {
+            const tbody = document.getElementById('recentTransactionsBody');
+            const transactions = result.transactions.slice(0, 5); // Show only 5 recent
+            
+            if (transactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No recent transactions</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = transactions.map(transaction => `
+                <tr>
+                    <td>${transaction.userName || 'Unknown User'}</td>
+                    <td><span class="badge badge-network">${transaction.network?.toUpperCase() || 'N/A'}</span></td>
+                    <td>${transaction.packageName || 'N/A'}</td>
+                    <td>₵${transaction.amount || '0'}</td>
+                    <td><span class="badge ${getStatusBadgeClass(transaction.status)}">${transaction.status || 'unknown'}</span></td>
+                    <td>${new Date(transaction.timestamp).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+        }
+    } catch (error) {
+        console.error('Error loading recent transactions:', error);
+    }
+}
+
+// ==================== USER MANAGEMENT FUNCTIONS ====================
+
+async function loadUsers() {
+    try {
+        const response = await fetch('/api/admin/users');
+        const result = await response.json();
+        
+        if (result.success) {
+            currentUsers = result.users;
+            renderUsers(currentUsers);
+        } else {
+            showError('Users Error', 'Failed to load users');
+        }
+    } catch (error) {
+        console.error('Error loading users:', error);
+        showError('Users Error', 'Failed to load users');
+    }
+}
+
+function renderUsers(users) {
+    const tbody = document.getElementById('usersTableBody');
+    
+    if (!users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No users found</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = users.map(user => `
+        <tr>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="user-avatar me-2">
+                        ${user.firstName?.charAt(0) || 'U'}${user.lastName?.charAt(0) || ''}
+                    </div>
+                    <div>
+                        <div class="fw-semibold">${user.firstName || ''} ${user.lastName || ''}</div>
+                        <small class="text-muted">${user.uid ? user.uid.substring(0, 8) + '...' : 'N/A'}</small>
+                    </div>
+                </div>
+            </td>
+            <td>${user.email || 'N/A'}</td>
+            <td>${user.phone || 'N/A'}</td>
+            <td>
+                <span class="badge ${getRoleBadgeClass(user.pricingGroup)}">
+                    ${user.pricingGroup || 'regular'}
+                </span>
+            </td>
+            <td><span class="fw-bold text-success">₵${user.walletBalance || 0}</span></td>
+            <td><span class="text-info">₵${user.totalSpent || 0}</span></td>
+            <td>
+                <span class="badge ${(user.status === 'active' || user.status === undefined) ? 'badge-success' : 'badge-danger'}">
+                    ${user.status || 'active'}
+                </span>
+            </td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary update-role-btn" 
+                            data-user-id="${user.uid}" 
+                            data-user-role="${user.pricingGroup || 'regular'}"
+                            data-user-name="${user.firstName || ''} ${user.lastName || ''}">
+                        <i class="fas fa-user-tag"></i>
+                    </button>
+                    <button class="btn btn-outline-success add-funds-btn" 
+                            data-user-id="${user.uid}" 
+                            data-user-name="${user.firstName || ''} ${user.lastName || ''}"
+                            data-user-balance="${user.walletBalance || 0}">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="btn btn-outline-danger deduct-funds-btn" 
+                            data-user-id="${user.uid}" 
+                            data-user-name="${user.firstName || ''} ${user.lastName || ''}"
+                            data-user-balance="${user.walletBalance || 0}">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button class="btn btn-outline-${(user.status === 'active' || user.status === undefined) ? 'warning' : 'success'} toggle-suspend-btn"
+                            data-user-id="${user.uid}"
+                            data-current-status="${user.status || 'active'}">
+                        <i class="fas fa-${(user.status === 'active' || user.status === undefined) ? 'pause' : 'play'}"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    // Add event listeners for role buttons
+    document.querySelectorAll('.update-role-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const userId = e.target.closest('.update-role-btn').getAttribute('data-user-id');
+            const userRole = e.target.closest('.update-role-btn').getAttribute('data-user-role');
+            const userName = e.target.closest('.update-role-btn').getAttribute('data-user-name');
+            openRoleModal(userId, userRole, userName);
+        });
+    });
+
+    // Add event listeners for add funds buttons
+    document.querySelectorAll('.add-funds-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const userId = e.target.closest('.add-funds-btn').getAttribute('data-user-id');
+            const userName = e.target.closest('.add-funds-btn').getAttribute('data-user-name');
+            openAddFundsModal(userId, userName);
+        });
+    });
+
+    // NEW: Add event listeners for deduct funds buttons
+    document.querySelectorAll('.deduct-funds-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const userId = e.target.closest('.deduct-funds-btn').getAttribute('data-user-id');
+            const userName = e.target.closest('.deduct-funds-btn').getAttribute('data-user-name');
+            const userBalance = e.target.closest('.deduct-funds-btn').getAttribute('data-user-balance');
+            openDeductFundsModal(userId, userName, userBalance);
+        });
+    });
+
+    document.querySelectorAll('.toggle-suspend-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const userId = e.target.closest('.toggle-suspend-btn').getAttribute('data-user-id');
+            toggleUserSuspension(userId);
+        });
+    });
+}
+
+function filterUsers() {
+    const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+    const filteredUsers = currentUsers.filter(user => 
+        (user.firstName && user.firstName.toLowerCase().includes(searchTerm)) ||
+        (user.lastName && user.lastName.toLowerCase().includes(searchTerm)) ||
+        (user.email && user.email.toLowerCase().includes(searchTerm)) ||
+        (user.phone && user.phone.includes(searchTerm))
+    );
+    renderUsers(filteredUsers);
+}
+
+// Role management functions
+function openRoleModal(userId, currentRole, userName) {
+    document.getElementById('roleUserId').value = userId;
+    document.getElementById('roleUserName').textContent = userName;
+    document.getElementById('currentRole').textContent = currentRole;
+    document.getElementById('newRole').value = currentRole;
+    
+    const modal = new bootstrap.Modal(document.getElementById('roleModal'));
+    modal.show();
+}
+
+async function updateUserRole() {
+    const userId = document.getElementById('roleUserId').value;
+    const newRole = document.getElementById('newRole').value;
+    const userName = document.getElementById('roleUserName').textContent;
+
+    try {
+        const response = await fetch(`/api/admin/users/${userId}/update-role`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ role: newRole })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccess('Role Updated', `User role updated from ${result.previousRole} to ${result.newRole}`);
+            bootstrap.Modal.getInstance(document.getElementById('roleModal')).hide();
+            loadUsers(); // Refresh the users list
+        } else {
+            showError('Role Update Failed', result.error);
+        }
+    } catch (error) {
+        console.error('Error updating user role:', error);
+        showError('Role Update Failed', 'Failed to update user role');
+    }
+}
+
+function openAddFundsModal(userId, userName) {
+    document.getElementById('fundsUserId').value = userId;
+    document.getElementById('fundsUserName').value = userName;
+    document.getElementById('fundsAmount').value = '';
+    document.getElementById('fundsNote').value = '';
+    
+    const modal = new bootstrap.Modal(document.getElementById('addFundsModal'));
+    modal.show();
+}
+
+async function addFundsToUser() {
+    const userId = document.getElementById('fundsUserId').value;
+    const amount = document.getElementById('fundsAmount').value;
+    const note = document.getElementById('fundsNote').value;
+
+    if (!amount || amount <= 0) {
+        showError('Invalid Amount', 'Please enter a valid amount');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/admin/users/${userId}/add-funds`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ amount: parseFloat(amount), note })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccess('Funds Added', result.message);
+            bootstrap.Modal.getInstance(document.getElementById('addFundsModal')).hide();
+            loadUsers();
+            loadDashboardData();
+        } else {
+            showError('Add Funds Failed', result.error);
+        }
+    } catch (error) {
+        console.error('Error adding funds:', error);
+        showError('Add Funds Failed', 'Failed to add funds');
+    }
+}
+
+// NEW: Deduct funds functions
+function openDeductFundsModal(userId, userName, userBalance) {
+    document.getElementById('deductFundsUserId').value = userId;
+    document.getElementById('deductFundsUserName').value = userName;
+    document.getElementById('currentUserBalance').value = `₵${userBalance}`;
+    document.getElementById('deductFundsAmount').value = '';
+    document.getElementById('deductFundsReason').value = '';
+    
+    const modal = new bootstrap.Modal(document.getElementById('deductFundsModal'));
+    modal.show();
+}
+
+async function deductFundsFromUser() {
+    const userId = document.getElementById('deductFundsUserId').value;
+    const amount = document.getElementById('deductFundsAmount').value;
+    const reason = document.getElementById('deductFundsReason').value;
+
+    if (!amount || amount <= 0) {
+        showError('Invalid Amount', 'Please enter a valid amount');
+        return;
+    }
+
+    if (!reason) {
+        showError('Reason Required', 'Please provide a reason for deducting funds');
+        return;
+    }
+
+    const result = await showConfirm(
+        'Confirm Deduction', 
+        `Are you sure you want to deduct ₵${amount} from this user? This action cannot be undone.`,
+        'Yes, Deduct Funds'
+    );
+
+    if (!result.isConfirmed) return;
+
+    try {
+        const response = await fetch(`/api/admin/users/${userId}/deduct-funds`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ amount: parseFloat(amount), note: reason })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccess('Funds Deducted', result.message);
+            bootstrap.Modal.getInstance(document.getElementById('deductFundsModal')).hide();
+            loadUsers();
+            loadDashboardData();
+        } else {
+            showError('Deduction Failed', result.error);
+        }
+    } catch (error) {
+        console.error('Error deducting funds:', error);
+        showError('Deduction Failed', 'Failed to deduct funds');
+    }
+}
+
+async function toggleUserSuspension(userId) {
+    const result = await showConfirm(
+        'Confirm Action', 
+        'Are you sure you want to toggle user suspension status?',
+        'Yes, Continue'
+    );
+
+    if (!result.isConfirmed) return;
+
+    try {
+        const response = await fetch(`/api/admin/users/${userId}/toggle-suspend`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccess('Status Updated', result.message);
+            loadUsers();
+        } else {
+            showError('Action Failed', result.error);
+        }
+    } catch (error) {
+        console.error('Error toggling user suspension:', error);
+        showError('Action Failed', 'Failed to update user status');
+    }
+}
+
+// ==================== PACKAGE MANAGEMENT FUNCTIONS ====================
+
+async function loadPackages() {
+    try {
+        const response = await fetch('/api/admin/packages');
+        const result = await response.json();
+        
+        if (result.success) {
+            currentPackages = result.packages;
+            renderPackages();
+        } else {
+            showError('Packages Error', 'Failed to load packages');
+        }
+    } catch (error) {
+        console.error('Error loading packages:', error);
+        showError('Packages Error', 'Failed to load packages');
+    }
+}
+
+function renderPackages() {
+    renderPackageGrid('mtn', currentPackages.mtn || []);
+    renderPackageGrid('at', currentPackages.at || []);
+}
+
+function renderPackageGrid(network, packages) {
+    const container = document.getElementById(`${network}PackagesGrid`);
+    
+    if (!packages || packages.length === 0) {
+        container.innerHTML = '<div class="col-12"><p class="text-muted">No packages found</p></div>';
+        return;
+    }
+
+    container.innerHTML = packages.map(pkg => {
+        const isActive = pkg.active !== false;
+        const statusClass = isActive ? 'active' : 'inactive';
+        const statusText = isActive ? 'Active' : 'Inactive';
+        const statusBadge = isActive ? 'badge-success' : 'badge-secondary';
+        
+        return `
+            <div class="col-md-4 mb-4">
+                <div class="package-card ${statusClass}">
+                    <div class="package-header">
+                        <h6 class="package-name">${pkg.name || 'Unnamed Package'}</h6>
+                        <span class="package-status badge ${statusBadge}">${statusText}</span>
+                    </div>
+                    <div class="package-details">
+                        <div class="package-validity">Validity: ${pkg.validity || 'N/A'}</div>
+                        <h3 class="package-price">₵${pkg.price || '0'}</h3>
+                    </div>
+                    <div class="package-actions">
+                        <button class="package-action-btn edit"
+                                data-network="${network}"
+                                data-package-id="${pkg.id}"
+                                data-package-name="${pkg.name || 'Unnamed Package'}"
+                                data-current-price="${pkg.price || '0'}">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="package-action-btn toggle"
+                                data-network="${network}"
+                                data-package-id="${pkg.id}">
+                            <i class="fas fa-${isActive ? 'pause' : 'play'}"></i> ${isActive ? 'Pause' : 'Activate'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Add event listeners for package buttons
+    document.querySelectorAll('.package-action-btn.edit').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const network = e.target.closest('.package-action-btn').getAttribute('data-network');
+            const packageId = e.target.closest('.package-action-btn').getAttribute('data-package-id');
+            const packageName = e.target.closest('.package-action-btn').getAttribute('data-package-name');
+            const currentPrice = e.target.closest('.package-action-btn').getAttribute('data-current-price');
+            openEditPriceModal(network, packageId, packageName, currentPrice);
+        });
+    });
+
+    document.querySelectorAll('.package-action-btn.toggle').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const network = e.target.closest('.package-action-btn').getAttribute('data-network');
+            const packageId = e.target.closest('.package-action-btn').getAttribute('data-package-id');
+            togglePackageActive(network, packageId);
+        });
+    });
+}
+
+function openEditPriceModal(network, packageId, packageName, currentPrice) {
+    document.getElementById('editPackageNetwork').value = network;
+    document.getElementById('editPackageId').value = packageId;
+    document.getElementById('editPackageName').textContent = packageName;
+    document.getElementById('editCurrentPrice').value = currentPrice;
+    document.getElementById('editNewPrice').value = currentPrice;
+    
+    // Reset price change indicator
+    updatePriceChangeIndicator();
+    
+    const modal = new bootstrap.Modal(document.getElementById('editPriceModal'));
+    modal.show();
+}
+
+async function updatePackagePrice() {
+    const network = document.getElementById('editPackageNetwork').value;
+    const packageId = document.getElementById('editPackageId').value;
+    const newPrice = document.getElementById('editNewPrice').value;
+    const packageName = document.getElementById('editPackageName').textContent;
+    const oldPrice = document.getElementById('editCurrentPrice').value;
+
+    if (!newPrice || newPrice <= 0) {
+        showError('Invalid Price', 'Please enter a valid price');
+        return;
+    }
+
+    try {
+        // NORMALIZE THE PACKAGE ID BEFORE SENDING
+        const normalizedPackageId = normalizePackageId(packageId, network);
+        
+        const response = await fetch('/api/admin/packages/update-price', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                network, 
+                packageId: normalizedPackageId,
+                newPrice: parseFloat(newPrice) 
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccess(
+                'Price Updated', 
+                `"${result.packageName}" price updated from ₵${result.oldPrice} to ₵${result.newPrice}`
+            );
+            bootstrap.Modal.getInstance(document.getElementById('editPriceModal')).hide();
+            loadPackages(); // Refresh the packages
+        } else {
+            showError('Price Update Failed', result.error);
+        }
+    } catch (error) {
+        console.error('Error updating package price:', error);
+        showError('Price Update Failed', 'Failed to update package price');
+    }
+}
+
+async function togglePackageActive(network, packageId) {
+    const result = await showConfirm(
+        'Confirm Action', 
+        'Are you sure you want to toggle package active status?',
+        'Yes, Continue'
+    );
+
+    if (!result.isConfirmed) return;
+
+    try {
+        const response = await fetch('/api/admin/packages/toggle-active', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ network, packageId })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccess('Status Updated', result.message);
+            loadPackages();
+        } else {
+            showError('Action Failed', result.error);
+        }
+    } catch (error) {
+        console.error('Error toggling package:', error);
+        showError('Action Failed', 'Failed to update package status');
+    }
+}
+
+function showBulkUpdateModal(network) {
+    document.getElementById('bulkUpdateNetwork').value = network;
+    document.getElementById('bulkPercentage').value = '';
+    document.getElementById('bulkFixedAmount').value = '';
+    
+    const modal = new bootstrap.Modal(document.getElementById('bulkUpdateModal'));
+    modal.show();
+}
+
+function toggleBulkUpdateFields() {
+    const type = document.getElementById('bulkUpdateType').value;
+    const percentageField = document.getElementById('percentageField');
+    const fixedField = document.getElementById('fixedField');
+
+    if (type === 'percentage') {
+        percentageField.classList.remove('d-none');
+        fixedField.classList.add('d-none');
+    } else {
+        percentageField.classList.add('d-none');
+        fixedField.classList.remove('d-none');
+    }
+}
+
+async function applyBulkUpdate() {
+    const network = document.getElementById('bulkUpdateNetwork').value;
+    const type = document.getElementById('bulkUpdateType').value;
+    const percentage = document.getElementById('bulkPercentage').value;
+    const fixedAmount = document.getElementById('bulkFixedAmount').value;
+
+    if ((type === 'percentage' && !percentage) || (type === 'fixed' && !fixedAmount)) {
+        showError('Invalid Input', 'Please enter a value');
+        return;
+    }
+
+    const result = await showConfirm(
+        'Confirm Bulk Update', 
+        `This will update all ${network.toUpperCase()} package prices. This action cannot be undone.`,
+        'Yes, Apply Changes'
+    );
+
+    if (!result.isConfirmed) return;
+
+    try {
+        const response = await fetch('/api/admin/packages/bulk-update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                network, 
+                percentageChange: type === 'percentage' ? parseFloat(percentage) : null,
+                fixedChange: type === 'fixed' ? parseFloat(fixedAmount) : null,
+                operation: type
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccess('Bulk Update Complete', result.message);
+            bootstrap.Modal.getInstance(document.getElementById('bulkUpdateModal')).hide();
+            loadPackages();
+        } else {
+            showError('Bulk Update Failed', result.error);
+        }
+    } catch (error) {
+        console.error('Error applying bulk update:', error);
+        showError('Bulk Update Failed', 'Failed to apply bulk update');
+    }
+}
+
+// ==================== ORDER MANAGEMENT FUNCTIONS ====================
+
+async function loadTransactions() {
+    const status = document.getElementById('filterStatus').value;
+    const network = document.getElementById('filterNetwork').value;
+    const dateFrom = document.getElementById('filterDateFrom').value;
+    const dateTo = document.getElementById('filterDateTo').value;
+    const search = document.getElementById('filterSearch').value;
+
+    let url = '/api/admin/transactions?';
+    const params = new URLSearchParams();
+    
+    if (status !== 'all') params.append('status', status);
+    if (network !== 'all') params.append('network', network);
+    if (dateFrom) params.append('dateFrom', dateFrom);
+    if (dateTo) params.append('dateTo', dateTo);
+    if (search) params.append('search', search);
+
+    try {
+        const response = await fetch(url + params.toString());
+        const result = await response.json();
+        
+        if (result.success) {
+            currentTransactions = result.transactions;
+            renderTransactions(currentTransactions);
+        } else {
+            showError('Transactions Error', 'Failed to load transactions');
+        }
+    } catch (error) {
+        console.error('Error loading transactions:', error);
+        showError('Transactions Error', 'Failed to load transactions');
+    }
+}
+
+function renderTransactions(transactions) {
+    const tbody = document.getElementById('transactionsTableBody');
+    const countElement = document.getElementById('transactionsCount');
+    
+    countElement.textContent = `${transactions.length} transactions found`;
+
+    if (transactions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No transactions found</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = transactions.map(transaction => `
+        <tr>
+            <td><small class="text-muted">${transaction.id ? transaction.id.substring(0, 8) + '...' : 'N/A'}</small></td>
+            <td>${transaction.userName || 'Unknown User'}</td>
+            <td><span class="badge badge-network">${transaction.network?.toUpperCase() || 'N/A'}</span></td>
+            <td>${transaction.packageName || 'N/A'}</td>
+            <td>${transaction.phoneNumber || 'N/A'}</td>
+            <td>₵${transaction.amount || '0'}</td>
+            <td><span class="badge ${getStatusBadgeClass(transaction.status)}">${transaction.status || 'unknown'}</span></td>
+            <td>${new Date(transaction.timestamp).toLocaleDateString()}</td>
+            <td>
+                ${transaction.status === 'success' ? `
+                    <button class="btn btn-sm btn-outline-danger refund-btn"
+                            data-transaction-id="${transaction.id}"
+                            data-transaction-amount="${transaction.amount}"
+                            data-transaction-user="${transaction.userName}"
+                            data-transaction-package="${transaction.packageName}">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                ` : ''}
+            </td>
+        </tr>
+    `).join('');
+
+    // Add event listeners for refund buttons
+    document.querySelectorAll('.refund-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const transactionId = e.target.closest('.refund-btn').getAttribute('data-transaction-id');
+            const amount = e.target.closest('.refund-btn').getAttribute('data-transaction-amount');
+            const userName = e.target.closest('.refund-btn').getAttribute('data-transaction-user');
+            const packageName = e.target.closest('.refund-btn').getAttribute('data-transaction-package');
+            openRefundModal(transactionId, amount, userName, packageName);
+        });
+    });
+}
+
+function clearFilters() {
+    document.getElementById('filterStatus').value = 'all';
+    document.getElementById('filterNetwork').value = 'all';
+    document.getElementById('filterDateFrom').value = '';
+    document.getElementById('filterDateTo').value = '';
+    document.getElementById('filterSearch').value = '';
+    loadTransactions();
+}
+
+function openRefundModal(transactionId, amount, userName, packageName) {
+    document.getElementById('refundTransactionId').value = transactionId;
+    document.getElementById('refundAmount').textContent = `₵${amount}`;
+    document.getElementById('refundUser').textContent = userName;
+    document.getElementById('refundPackage').textContent = packageName;
+    document.getElementById('refundReason').value = '';
+    
+    const modal = new bootstrap.Modal(document.getElementById('refundModal'));
+    modal.show();
+}
+
+async function processRefund() {
+    const transactionId = document.getElementById('refundTransactionId').value;
+    const reason = document.getElementById('refundReason').value;
+
+    if (!reason) {
+        showError('Reason Required', 'Please enter a refund reason');
+        return;
+    }
+
+    const result = await showConfirm(
+        'Confirm Refund', 
+        `Are you sure you want to refund this transaction? This action cannot be undone.`,
+        'Yes, Process Refund'
+    );
+
+    if (!result.isConfirmed) return;
+
+    try {
+        const response = await fetch(`/api/admin/transactions/${transactionId}/refund`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reason })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccess('Refund Processed', result.message);
+            bootstrap.Modal.getInstance(document.getElementById('refundModal')).hide();
+            loadTransactions();
+            loadDashboardData();
+        } else {
+            showError('Refund Failed', result.error);
+        }
+    } catch (error) {
+        console.error('Error processing refund:', error);
+        showError('Refund Failed', 'Failed to process refund');
+    }
+}
+
+// ==================== PRICING CONTROL FUNCTIONS ====================
+
+async function loadPricingGroups() {
+    try {
+        const response = await fetch('/api/admin/pricing/groups');
+        const result = await response.json();
+        
+        if (result.success) {
+            renderPricingGroups(result.pricingGroups);
+        } else {
+            showError('Pricing Error', 'Failed to load pricing groups');
+        }
+    } catch (error) {
+        console.error('Error loading pricing groups:', error);
+        showError('Pricing Error', 'Failed to load pricing groups');
+    }
+}
+
+function renderPricingGroups(groups) {
+    const container = document.getElementById('pricingGroupsList');
+    container.innerHTML = '';
+
+    if (!groups) {
+        container.innerHTML = '<p class="text-muted">No pricing groups found</p>';
+        return;
+    }
+
+    for (const [groupKey, group] of Object.entries(groups)) {
+        const card = document.createElement('div');
+        card.className = 'card mb-3';
+        card.innerHTML = `
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">${group.name || groupKey}</h6>
+                    <span class="badge bg-info">${group.discount || 0}% discount</span>
+                </div>
+                <div class="row g-2">
+                    <div class="col-8">
+                        <input type="number" class="form-control form-control-sm" 
+                               id="discount-${groupKey}" value="${group.discount || 0}" 
+                               step="0.1" min="0" max="50">
+                    </div>
+                    <div class="col-4">
+                        <button class="btn btn-sm btn-primary w-100 update-discount-btn"
+                                data-group="${groupKey}">
+                            Update
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    }
+
+    // Add event listeners
+    document.querySelectorAll('.update-discount-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const group = e.target.getAttribute('data-group');
+            const discount = document.getElementById(`discount-${group}`).value;
+            updatePricingGroup(group, discount);
+        });
+    });
+}
+
+async function updatePricingGroup(group, discount) {
+    try {
+        const response = await fetch('/api/admin/pricing/groups/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ group, discount: parseFloat(discount) })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccess('Pricing Updated', result.message);
+        } else {
+            showError('Update Failed', result.error);
+        }
+    } catch (error) {
+        console.error('Error updating pricing group:', error);
+        showError('Update Failed', 'Failed to update pricing group');
+    }
+}
+
+// ==================== REVENUE REPORTS FUNCTIONS ====================
+
+async function loadSalesReport() {
+    const period = document.getElementById('reportPeriod').value;
+    
+    try {
+        const response = await fetch(`/api/admin/reports/sales?period=${period}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            renderSalesReport(result.report);
+        } else {
+            showError('Report Error', 'Failed to load sales report');
+        }
+    } catch (error) {
+        console.error('Error loading sales report:', error);
+        showError('Report Error', 'Failed to load sales report');
+    }
+}
+
+function renderSalesReport(report) {
+    const container = document.getElementById('salesReportContent');
+    if (!report) {
+        container.innerHTML = '<p class="text-muted">No report data available</p>';
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="row text-center">
+            <div class="col-md-3 mb-3">
+                <div class="p-3 bg-light rounded">
+                    <h4 class="text-primary">₵${(report.totalSales || 0).toFixed(2)}</h4>
+                    <small>Total Sales</small>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="p-3 bg-light rounded">
+                    <h4 class="text-success">₵${(report.totalRevenue || 0).toFixed(2)}</h4>
+                    <small>Total Revenue</small>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="p-3 bg-light rounded">
+                    <h4 class="text-info">${report.successfulTransactions || 0}</h4>
+                    <small>Successful Orders</small>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="p-3 bg-light rounded">
+                    <h4 class="text-warning">₵${(report.averageOrderValue || 0).toFixed(2)}</h4>
+                    <small>Average Order Value</small>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ==================== SYSTEM MONITORING FUNCTIONS ====================
+
+async function loadSystemStatus() {
+    try {
+        const response = await fetch('/api/admin/system/status');
+        const result = await response.json();
+        
+        if (result.success) {
+            renderSystemStatus(result.systemStatus);
+        } else {
+            showError('System Error', 'Failed to load system status');
+        }
+    } catch (error) {
+        console.error('Error loading system status:', error);
+        showError('System Error', 'Failed to load system status');
+    }
+}
+
+function renderSystemStatus(status) {
+    if (!status) return;
+
+    // Update API status in dashboard
+    document.getElementById('hubnetStatus').textContent = status.hubnet?.status || 'unknown';
+    document.getElementById('hubnetStatus').className = `badge bg-${status.hubnet?.status === 'online' ? 'success' : 'danger'}`;
+    
+    document.getElementById('paystackStatus').textContent = status.paystack?.status || 'unknown';
+    document.getElementById('paystackStatus').className = `badge bg-${status.paystack?.status === 'online' ? 'success' : 'danger'}`;
+
+    // Update API status list
+    const apiStatusList = document.getElementById('apiStatusList');
+    apiStatusList.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span>Hubnet API</span>
+            <span class="badge bg-${status.hubnet?.status === 'online' ? 'success' : 'danger'}">
+                ${status.hubnet?.status || 'unknown'}
+            </span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span>Paystack API</span>
+            <span class="badge bg-${status.paystack?.status === 'online' ? 'success' : 'danger'}">
+                ${status.paystack?.status || 'unknown'}
+            </span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span>Firebase Database</span>
+            <span class="badge bg-success">${status.firebase?.status || 'online'}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <span>Server</span>
+            <span class="badge bg-success">${status.server?.status || 'healthy'}</span>
+        </div>
+    `;
+
+    // Update system metrics
+    const systemMetrics = document.getElementById('systemMetrics');
+    systemMetrics.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span>Success Rate</span>
+            <span class="fw-bold text-success">${status.successRate || 0}%</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span>Recent Transactions (24h)</span>
+            <span class="fw-bold text-info">${status.recentTransactions || 0}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <span>Hubnet Balance</span>
+            <span class="fw-bold text-primary">₵${status.hubnet?.balance || 'N/A'}</span>
+        </div>
+    `;
+}
+
+function checkSystemStatus() {
+    loadSystemStatus();
+    showSuccess('Status Refreshed', 'System status has been updated');
+}
+
+// ==================== SECURITY FUNCTIONS ====================
+
+async function loadSecurityLogs() {
+    try {
+        const response = await fetch('/api/admin/security/logs');
+        const result = await response.json();
+        
+        if (result.success) {
+            renderSecurityLogs(result.logs);
+        } else {
+            showError('Security Error', 'Failed to load security logs');
+        }
+    } catch (error) {
+        console.error('Error loading security logs:', error);
+        showError('Security Error', 'Failed to load security logs');
+    }
+}
+
+function renderSecurityLogs(logs) {
+    const tbody = document.getElementById('securityLogsBody');
+    
+    if (!logs || logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No security logs found</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = logs.slice(0, 10).map(log => `
+        <tr>
+            <td><small>${log.adminId ? log.adminId.substring(0, 8) + '...' : 'N/A'}</small></td>
+            <td><span class="badge bg-info">${log.action || 'N/A'}</span></td>
+            <td>${log.details || 'N/A'}</td>
+            <td><small class="text-muted">${log.ip || 'N/A'}</small></td>
+            <td><small>${new Date(log.timestamp).toLocaleString()}</small></td>
+        </tr>
+    `).join('');
+}
+
+// ==================== MISC FUNCTIONS ====================
+
+function exportReport() {
+    showInfo('Export Feature', 'Export functionality will be implemented soon.');
+}
+
+function exportPricing() {
+    showInfo('Export Feature', 'Pricing export functionality will be implemented soon.');
+}
+
+function showSeasonalPricingModal() {
+    showInfo('Seasonal Pricing', 'Seasonal pricing feature will be implemented soon.');
+}
+
+function showBulkPricingModal() {
+    showInfo('Bulk Pricing', 'Bulk pricing feature will be implemented soon.');
+}
+
+// Initialize SweetAlert
+const Swal = window.Swal;
+
+// SweetAlert configuration
+const showAlert = (icon, title, text, confirmButtonText = 'OK') => {
+    return Swal.fire({
+        icon,
+        title,
+        text,
+        confirmButtonText,
+        customClass: {
+            confirmButton: 'btn btn-primary'
+        },
+        buttonsStyling: false
+    });
+};
+
+const showSuccess = (title, text) => showAlert('success', title, text);
+const showError = (title, text) => showAlert('error', title, text);
+const showWarning = (title, text) => showAlert('warning', title, text);
+const showInfo = (title, text) => showAlert('info', title, text);
+
+// Enhanced confirmation dialog
+const showConfirm = (title, text, confirmButtonText = 'Yes, proceed') => {
+    return Swal.fire({
+        title,
+        text,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText,
+        cancelButtonText: 'Cancel',
+        customClass: {
+            confirmButton: 'btn btn-danger me-2',
+            cancelButton: 'btn btn-secondary'
+        },
+        buttonsStyling: false
+    });
+};
+</script>
+</body>
+</html>

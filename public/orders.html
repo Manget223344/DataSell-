@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Orders - DataSell</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+        <style>
+        :root {
+            --primary-color: #6c63ff;
+            --light-bg: #f8f9fa;
+            --card-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--light-bg);
+            min-height: 100vh;
+            padding-bottom: 80px;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .app-header {
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin: 0;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .app-main {
+            padding: 1rem 0;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 0;
+            background: white;
+            border-radius: var(--card-radius);
+            padding: 0.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: white;
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Order Cards - Compact */
+        .order-card {
+            background: white;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .order-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+
+        .order-card.success { border-left-color: #4caf50; }
+        .order-card.pending { border-left-color: #ff9800; }
+        .order-card.failed { border-left-color: #f44336; }
+        .order-card.processing { border-left-color: #2196f3; }
+
+        .order-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .order-card.success .order-icon { background: rgba(76, 175, 80, 0.1); color: #4caf50; }
+        .order-card.pending .order-icon { background: rgba(255, 152, 0, 0.1); color: #ff9800; }
+        .order-card.failed .order-icon { background: rgba(244, 67, 54, 0.1); color: #f44336; }
+        .order-card.processing .order-icon { background: rgba(33, 150, 243, 0.1); color: #2196f3; }
+
+        .order-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .order-title {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .order-meta {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin: 0.15rem 0 0 0;
+        }
+
+        .order-status-badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .badge-success { background: rgba(76, 175, 80, 0.1); color: #4caf50; }
+        .badge-pending { background: rgba(255, 152, 0, 0.1); color: #ff9800; }
+        .badge-failed { background: rgba(244, 67, 54, 0.1); color: #f44336; }
+        .badge-processing { background: rgba(33, 150, 243, 0.1); color: #2196f3; }
+
+        .order-amount {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .orders-container {
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .orders-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .orders-container::-webkit-scrollbar-track {
+            background: var(--light-bg);
+        }
+
+        .orders-container::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+
+        .orders-container::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+
+        /* Tracking Section */
+        .tracking-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--card-radius);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .tracking-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tracking-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .tracking-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+        }
+
+        .tracking-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .tracking-btn:hover {
+            background: #5a52d5;
+        }
+
+        .tracking-result {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .tracking-result.show {
+            display: block;
+        }
+
+        .tracking-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .tracking-step {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .tracking-step:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .tracking-step::before {
+            content: '';
+            position: absolute;
+            left: -1.75rem;
+            top: 24px;
+            width: 2px;
+            height: calc(100% - 24px);
+            background: #e9ecef;
+        }
+
+        .tracking-step:last-child::before {
+            display: none;
+        }
+
+        .step-dot {
+            position: absolute;
+            left: -2.25rem;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            z-index: 1;
+        }
+
+        .tracking-step.completed .step-dot {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: white;
+        }
+
+        .tracking-step.current .step-dot {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .step-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-time {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: white;
+            border-radius: var(--card-radius);
+        }
+
+        .empty-icon {
+            font-size: 2.5rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-text {
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            padding: 0.5rem 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.4rem;
+            text-decoration: none;
+            color: #6c757d;
+            transition: var(--transition);
+            font-size: 0.75rem;
+            min-height: 44px;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item i {
+            font-size: 1.1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        @media (max-width: 576px) {
+            .container { padding-left: 0.75rem; padding-right: 0.75rem; }
+            .app-title { font-size: 1.3rem; }
+            .order-card { padding: 0.6rem; }
+            .order-icon { width: 36px; height: 36px; font-size: 1rem; }
+            .order-title { font-size: 0.85rem; }
+            .order-meta { font-size: 0.7rem; }
+            .order-amount { font-size: 0.85rem; }
+            .tracking-box { padding: 1rem; }
+            .tab-btn { padding: 0.6rem 0.75rem; font-size: 0.8rem; }
+        }
+
+        @media (min-width: 577px) and (max-width: 768px) {
+            .container { padding-left: 1rem; padding-right: 1rem; }
+        }
+
+        @media (min-width: 769px) {
+            .orders-container { max-height: calc(100vh - 250px); }
+        }
+        </style>
+    </head>
+    <body>
+        <!-- Header -->
+        <header class="app-header">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center py-3">
+                    <a href="/" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <h1 class="app-title">Orders</h1>
+                    <div class="user-avatar" id="userAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <div class="container">
+                <div class="orders-container" id="ordersList">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Loading orders...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- (Order tracking modal and floating button removed per request) -->
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="/" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/wallet" class="nav-item">
+                <i class="fas fa-wallet"></i>
+                <span>Wallet</span>
+            </a>
+            <a href="/orders" class="nav-item active">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Orders</span>
+            </a>
+            <a href="/profile" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+
+        <script>
+            const notyf = new Notyf({ duration: 4000, position: { x: 'center', y: 'top' } });
+            let currentUser = null, allOrders = [];
+
+            async function initializeApp() {
+                try {
+                    const userRes = await fetch('/api/user');
+                    if (userRes.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    if (!userRes.ok) throw new Error('User not authenticated');
+                    const userData = await userRes.json();
+                    if (!userData.success) throw new Error('Not authenticated');
+                    currentUser = userData.user;
+                    updateUserAvatar();
+                    const ordersRes = await fetch('/api/orders');
+                    if (ordersRes.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    const ordersData = await ordersRes.json();
+                    if (ordersData.success) {
+                        allOrders = ordersData.orders.map(o => ({ ...o, id: o.id }));
+                        displayOrders();
+                    } else {
+                        throw new Error('Failed to load orders');
+                    }
+                } catch (error) {
+                    console.error('Init error:', error);
+                    document.getElementById('ordersList').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon"><i class="fas fa-exclamation-circle"></i></div>
+                            <p class="empty-text">${error.message || 'Failed to load orders'}</p>
+                            <button class="btn btn-sm btn-primary mt-2" onclick="location.reload()">Retry</button>
+                        </div>
+                    `;
+                }
+            }
+
+            function updateUserAvatar() {
+                if (currentUser?.displayName) {
+                    const initials = currentUser.displayName.split(' ').map(n => n[0]).join('').toUpperCase();
+                    document.getElementById('userAvatar').textContent = initials;
+                }
+            }
+
+            /* Order tracking modal functions removed per user request */
+
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        </script>
+    </body>
+    </html>
+
+        .tab-btn {
+            padding: 0.7rem 0.9rem;
+        }
+
+        .tracking-search-form {
+            flex-direction: row;
+        }
+
+        .order-card {
+            padding: 0.8rem;
+        }
+
+        .action-btn {
+            padding: 0.35rem 0.55rem;
+            font-size: 0.72rem;
+        }
+    }
+
+    /* Desktop Styles */
+    @media (min-width: 769px) {
+        .order-card {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tab-btn {
+            padding: 0.8rem 1.2rem;
+            font-size: 0.95rem;
+        }
+
+        .action-btn {
+            padding: 0.4rem 0.7rem;
+            font-size: 0.75rem;
+        }
+    }
+
+    /* Safe Area Support */
+    @supports(padding: max(0px)) {
+        .bottom-nav {
+            padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+        }
+        
+        .container {
+            padding-left: max(15px, env(safe-area-inset-left));
+            padding-right: max(15px, env(safe-area-inset-right));
+        }
+    }
+
+    /* Print Styles */
+    @media print {
+        .bottom-nav,
+        .search-box,
+        .filter-tabs,
+        .action-btn {
+            display: none !important;
+        }
+        
+        .order-card {
+            break-inside: avoid;
+            box-shadow: none;
+            border: 1px solid #ddd;
+        }
+    }
+</style>
+</head>
+<body class="mobile-layout">
+    <!-- Header -->
+    <header class="app-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center py-3">
+                <a href="/" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1 class="app-title">My Orders</h1>
+                <div class="user-avatar" id="userAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="app-main">
+        <div class="container">
+
+            <!-- Orders List -->
+            <div id="ordersList" class="orders-scroll-container">
+                    <div class="text-center py-4">
+                        <div class="loading-spinner"></div>
+                        <p class="mt-2 text-muted">Loading orders...</p>
+                    </div>
+                </div>
+        </div>
+    </main>
+
+    <!-- Floating Track Button -->
+    <button class="floating-btn" onclick="openTrackModal()">
+        <i class="fas fa-search"></i>
+    </button>
+
+    <!-- Track Order Modal -->
+    <div class="track-modal" id="trackModal">
+        <div class="track-modal-content">
+            <div class="track-modal-header">
+                <h3>Track Your Order</h3>
+                <p>Enter your order reference number</p>
+            </div>
+
+            <div class="track-search-box">
+                <input 
+                    type="text" 
+                    id="trackInput" 
+                    placeholder="Order Reference (e.g., DS-1764034564601)" 
+                    onkeypress="if(event.key === 'Enter') searchOrder()"
+                >
+            </div>
+
+            <div id="trackResultContainer"></div>
+
+            <div class="track-modal-actions">
+                <button class="track-btn secondary" onclick="closeTrackModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="/" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="/wallet" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            <span>Wallet</span>
+        </a>
+        <a href="/orders" class="nav-item active">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Orders</span>
+        </a>
+        <a href="/profile" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+    const notyf = new Notyf({ duration: 4000, position: { x: 'center', y: 'top' } });
+    let currentUser = null, allOrders = [], dbListener = null;
+
+
+
+    // Order Tracking
+                                    <p class="tracking-label">${step.label}</p>
+                                    <p class="tracking-time">${step.time}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('trackingResult').classList.add('active');
+        } catch (error) {
+            console.error('Error searching order:', error);
+            notyf.error('Error searching order');
+        }
+    }
+
+
+    async function initializeApp() {
+        try {
+            console.log('🔄 Starting app initialization...');
+
+            // Check if user is logged in
+            const userRes = await fetch('/api/user');
+            console.log('👤 User API response status:', userRes.status);
+            
+            if (!userRes.ok) {
+                throw new Error(`User API failed: ${userRes.status}`);
+            }
+            
+            const userData = await userRes.json();
+            console.log('👤 User data:', userData);
+            
+            if (!userData.success) {
+                throw new Error('User not authenticated');
+            }
+            
+            currentUser = userData.user;
+            currentUser.uid = userData.user.uid || userData.user.id; // Ensure uid is set
+            updateUserAvatar();
+            console.log('✅ User authenticated:', currentUser.email, 'UID:', currentUser.uid);
+
+            // Load Firebase config
+            console.log('🔧 Loading Firebase config...');
+            const cfgRes = await fetch('/api/firebase-config');
+            console.log('🔧 Firebase config response status:', cfgRes.status);
+            
+            if (!cfgRes.ok) {
+                throw new Error(`Firebase config failed: ${cfgRes.status}`);
+            }
+            
+            const cfg = await cfgRes.json();
+            console.log('🔧 Firebase config loaded:', cfg);
+            
+            if (!cfg.apiKey) {
+                throw new Error('Invalid Firebase configuration - missing API key');
+            }
+
+            if (!cfg.databaseURL) {
+                throw new Error('Invalid Firebase configuration - missing databaseURL for Realtime Database');
+            }
+
+            // Initialize Firebase for Realtime Database
+            console.log('🔥 Initializing Firebase for Realtime Database...');
+            try {
+                // Check if Firebase is already initialized
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(cfg);
+                    console.log('✅ Firebase initialized successfully with Realtime Database');
+                } else {
+                    console.log('ℹ️ Firebase already initialized');
+                }
+                
+                // Test database connection
+                const db = firebase.database();
+                console.log('📡 Realtime Database instance created');
+                
+            } catch (firebaseError) {
+                console.error('❌ Firebase initialization error:', firebaseError);
+                throw new Error(`Firebase init failed: ${firebaseError.message}`);
+            }
+
+            // Load orders
+            console.log('📦 Loading orders...');
+            const ordersRes = await fetch('/api/orders');
+            console.log('📦 Orders API response status:', ordersRes.status);
+            
+            if (!ordersRes.ok) {
+                throw new Error(`Orders API failed: ${ordersRes.status}`);
+            }
+            
+            const ordersData = await ordersRes.json();
+            console.log('📦 Orders data received:', ordersData);
+            
+            if (!ordersData.success) {
+                throw new Error('Failed to load orders data from server');
+            }
+            
+            allOrders = ordersData.orders.map(o => ({ ...o, id: o.id }));
+            console.log(`📦 Loaded ${allOrders.length} orders from server`);
+            console.log('📊 Orders data structure:', allOrders.slice(0, 1)); // Log first order for inspection
+            
+            displayOrders();
+            setupEventListeners();
+            setupRealtimeListener();
+            
+            console.log('✅ App initialization completed successfully');
+            
+        } catch (error) {
+            console.error('❌ Initialization error:', error);
+            
+            // Show detailed error message
+            const errorMessage = error.message || 'Unknown error';
+            
+            if (errorMessage.includes('401') || errorMessage.includes('authenticated')) {
+                notyf.error('Please log in again');
+                setTimeout(() => location.href = '/login', 1500);
+            } else if (errorMessage.includes('Firebase') || errorMessage.includes('database')) {
+                document.getElementById('ordersList').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fas fa-database"></i></div>
+                        <p class="empty-text">Database Connection Error</p>
+                        <p class="text-muted small mt-2">${errorMessage}</p>
+                        <button class="btn btn-primary mt-3" onclick="initializeApp()">Retry Connection</button>
+                    </div>
+                `;
+            } else {
+                document.getElementById('ordersList').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <p class="empty-text">Failed to load orders</p>
+                        <p class="text-muted small mt-2">${errorMessage}</p>
+                        <button class="btn btn-primary mt-3" onclick="initializeApp()">Retry</button>
+                        <button class="btn btn-outline-secondary mt-2" onclick="location.reload()">Reload Page</button>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    function updateUserAvatar() {
+        if (currentUser?.displayName) {
+            const initials = currentUser.displayName.split(' ').map(n => n[0]).join('').toUpperCase();
+            document.getElementById('userAvatar').textContent = initials;
+        }
+    }
+
+    function setupRealtimeListener() {
+        try {
+            console.log('👂 Setting up realtime database listener...');
+            const db = firebase.database();
+            
+            // Simple listener on transactions path (avoids index requirements)
+            const transactionsRef = db.ref('transactions');
+            
+            transactionsRef.on('child_changed', (snap) => {
+                try {
+                    const updatedTransaction = snap.val();
+                    
+                    // Only process if it belongs to current user
+                    if (updatedTransaction.userId === currentUser.uid) {
+                        console.log('🔄 Realtime update received:', snap.key);
+                        const idx = allOrders.findIndex(o => o.id === snap.key);
+                        if (idx > -1) {
+                            allOrders[idx] = { 
+                                ...allOrders[idx], 
+                                status: updatedTransaction.status,
+                                transactionId: updatedTransaction.transactionId || updatedTransaction.hubnetTransactionId,
+                                reference: updatedTransaction.reference
+                            };
+                            displayOrders();
+                            notyf.success(`Order updated: ${getStatusText(updatedTransaction.status)}`);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error processing realtime update:', error);
+                }
+            });
+                
+            console.log('✅ Realtime listener setup successfully');
+        } catch (error) {
+            console.error('❌ Realtime listener setup failed:', error);
+            // Continue without realtime updates - this is not critical
+        }
+    }
+
+    function getStatusKey(status) { 
+        if (status === 'delivered') return 'success';
+        if (status === 'success') return 'success'; 
+        if (status === 'failed') return 'failed';
+        if (status === 'processing') return 'pending';
+        return 'pending'; // default
+    }
+
+    function getStatusText(status) {
+        const statusMap = { 
+            delivered: 'Delivered', 
+            success: 'Successful', 
+            processing: 'Processing…',
+            failed: 'Failed', 
+            refunded: 'Refunded' 
+        };
+        return statusMap[status] || status;
+    }
+    function displayOrders() {
+        const list = document.getElementById('ordersList');
+        
+        if (!allOrders.length) {
+            list.innerHTML = `<div class="empty-state"><p>No orders yet</p><a href="/purchase" class="btn btn-primary">Buy Data</a></div>`;
+            list.className = 'orders-scroll-container';
+            return;
+        }
+
+        list.innerHTML = allOrders.map(order => {
+            try {
+                const statusKey = getStatusKey(order.status);
+                const canBuyAgain = ['delivered','success'].includes(order.status);
+                const packageNameEscaped = (order.packageName || 'Data Package').replace(/'/g, "\\'");
+                const buyAgainButton = canBuyAgain ? 
+                    `<button class="action-btn primary" onclick="buyAgain('${order.network || 'mtn'}','${order.volume || '0'}','${order.phoneNumber || ''}',${order.amount || 0},'${packageNameEscaped}')"><i class="fas fa-redo"></i> Again</button>` : '';
+
+                return `
+                    <div class="order-card ${statusKey}">
+                        <div class="order-header">
+                            <div class="order-info">
+                                <h4>${order.packageName || 'Data'}</h4>
+                                <p class="order-meta">${(order.network || 'N/A').toUpperCase()} • ${formatPhone(order.phoneNumber)}</p>
+                            </div>
+                            <div class="order-amount">₵${(order.amount || 0).toFixed(2)}</div>
+                            <span class="order-status status-${statusKey}">${getStatusText(order.status)}</span>
+                        </div>
+                        <div class="order-footer">
+                            <small class="text-muted" style="font-size: 0.7rem;">${formatDateTime(order.timestamp)}</small>
+                            <div class="order-actions">
+                                <button class="action-btn" onclick="copyToClipboard('${order.reference}')"><i class="fas fa-copy"></i></button>
+                                ${buyAgainButton}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error rendering order:', order, error);
+                return '';
+            }
+        }).join('');
+        
+        list.className = 'orders-scroll-container';
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text);
+        notyf.success('Reference copied');
+    }
+
+    function formatPhone(phone) { 
+        if (!phone) return '—';
+        const cleaned = String(phone).replace(/\D/g, '').slice(-10);
+        return cleaned ? cleaned.replace(/(\d{3})(\d{3})(\d{4})/, '$1***$3') : '—'; 
+    }
+
+    function formatDateTime(timestamp) { 
+        try {
+            if (!timestamp) return '—';
+            const date = new Date(timestamp);
+            if (isNaN(date.getTime())) return '—';
+            return date.toLocaleString([], {dateStyle:'short', timeStyle:'short'}); 
+        } catch (error) {
+            return '—';
+        }
+    }
+
+    function formatVolume(volume) { 
+        if (!volume) return '0MB';
+        const numericVolume = parseInt(volume); 
+        if (isNaN(numericVolume)) return '0MB';
+        return numericVolume >= 1000 ? (numericVolume/1000)+'GB' : numericVolume+'MB'; 
+    }
+
+    async function buyAgain(network, volume, phone, amount, packageName) {
+        try {
+            const balanceResponse = await fetch('/api/wallet/balance');
+            const balanceData = await balanceResponse.json();
+            
+            if (balanceData.success && balanceData.balance < amount) { 
+                notyf.error('Insufficient balance'); 
+                setTimeout(() => location.href = '/wallet', 1500); 
+                return; 
+            }
+            
+            const params = new URLSearchParams({
+                network: network,
+                volume: volume,
+                phone: phone,
+                package: encodeURIComponent(packageName)
+            });
+            
+            location.href = `/purchase?${params.toString()}`;
+        } catch (error) {
+            notyf.error('Failed to process buy again request');
+        }
+    }
+
+    function refreshOrders() {
+        console.log('🔄 Manual refresh initiated...');
+        transactionPage = 1;
+        allOrders = [];
+        loadTransactions();
+    }
+
+    function setupEventListeners() {
+        // Event listeners setup (search input removed)
+    }
+
+    window.addEventListener('beforeunload', () => { 
+        try {
+            const db = firebase.database();
+            db.ref('transactions').off('child_changed');
+        } catch (error) {
+            console.error('Error cleaning up Firebase listener:', error);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+    // Track Order Modal Functions
+    function openTrackModal() {
+        document.getElementById('trackModal').classList.add('active');
+        document.getElementById('trackInput').focus();
+        document.getElementById('trackResultContainer').innerHTML = '';
+    }
+
+    function closeTrackModal() {
+        document.getElementById('trackModal').classList.remove('active');
+        document.getElementById('trackInput').value = '';
+        document.getElementById('trackResultContainer').innerHTML = '';
+    }
+
+    async function searchOrder() {
+        const reference = document.getElementById('trackInput').value.trim();
+        const container = document.getElementById('trackResultContainer');
+
+        if (!reference) {
+            container.innerHTML = '<div class="track-error">Please enter an order reference</div>';
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="track-loading">
+                <div class="track-loading-spinner"></div>
+                <p>Searching for order...</p>
+            </div>
+        `;
+
+        try {
+            // Search in user's orders
+            const order = allOrders.find(o => 
+                (o.reference && o.reference.toLowerCase() === reference.toLowerCase()) ||
+                (o.id && o.id.toLowerCase() === reference.toLowerCase())
+            );
+
+            if (!order) {
+                container.innerHTML = '<div class="track-error"><i class="fas fa-times-circle"></i> Order not found</div>';
+                return;
+            }
+
+            displayTrackingResult(order, container);
+        } catch (error) {
+            console.error('Error searching order:', error);
+            container.innerHTML = '<div class="track-error">Error searching order. Please try again.</div>';
+        }
+    }
+
+    function displayTrackingResult(order, container) {
+        const statusKey = getStatusKey(order.status);
+        const statusText = getStatusText(order.status);
+        
+        let statusClass = 'pending';
+        if (order.status === 'success' || order.status === 'delivered') statusClass = 'success';
+        if (order.status === 'failed') statusClass = 'failed';
+        if (order.status === 'processing') statusClass = 'processing';
+
+        const html = `
+            <div class="track-result">
+                <div class="track-status-badge ${statusClass}">
+                    ${getStatusIcon(order.status)} ${statusText}
+                </div>
+                <h4 style="margin: 1rem 0 0 0; color: #333;">${order.packageName || 'Data Package'}</h4>
+                <p style="color: #6c757d; margin: 0.5rem 0 0 0;">₵${(order.amount || 0).toFixed(2)}</p>
+            </div>
+
+            <div class="track-details">
+                <div class="track-detail-row">
+                    <span class="track-detail-label">Network</span>
+                    <span class="track-detail-value">${(order.network || 'Unknown').toUpperCase()}</span>
+                </div>
+                <div class="track-detail-row">
+                    <span class="track-detail-label">Phone Number</span>
+                    <span class="track-detail-value">${formatPhone(order.phoneNumber)}</span>
+                </div>
+                <div class="track-detail-row">
+                    <span class="track-detail-label">Reference</span>
+                    <span class="track-detail-value">${order.reference || '—'}</span>
+                </div>
+                <div class="track-detail-row">
+                    <span class="track-detail-label">Transaction ID</span>
+                    <span class="track-detail-value">${order.transactionId ? order.transactionId.substring(0, 12) + '...' : '—'}</span>
+                </div>
+                <div class="track-detail-row">
+                    <span class="track-detail-label">Order Date</span>
+                    <span class="track-detail-value">${formatDateTime(order.timestamp)}</span>
+                </div>
+                ${order.reason ? `
+                <div class="track-detail-row">
+                    <span class="track-detail-label">Note</span>
+                    <span class="track-detail-value" style="color: #f44336;">${order.reason}</span>
+                </div>
+                ` : ''}
+            </div>
+        `;
+
+        container.innerHTML = html;
+    }
+
+    function getStatusIcon(status) {
+        if (status === 'success' || status === 'delivered') return '✓';
+        if (status === 'failed') return '✕';
+        if (status === 'processing') return '⟳';
+        return '⋯';
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('trackModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeTrackModal();
+        }
+    });
+
+    // Allow search on Enter key
+    document.getElementById('trackInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchOrder();
+        }
+    });
+</script>
+</body>
+</html>
