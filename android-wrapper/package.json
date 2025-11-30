@@ -2,11 +2,7 @@
   "devDependencies": {
     "cordova-android": "^14.0.1"
   },
-  "dependencies": {},
   "cordova": {
-    "plugins": {
-      "cordova-plugin-whitelist": {},
-      "cordova-plugin-splashscreen": {}
-    }
+    "plugins": {}
   }
 }

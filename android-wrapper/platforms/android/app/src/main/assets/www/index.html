@@ -25,7 +25,7 @@
 
   <script>
     // Fallback: set the same deployed URL you will use in config.xml
-    const remote = 'https://REPLACE_WITH_YOUR_RENDER_URL/';
+    const remote = 'https://symmetrical-succotash-x545j9gv54gxhvvg.github.dev/';
 
     // Prefer to use the remote site's logo if reachable, otherwise use any bundled logo
     const remoteLogo = remote.replace(/\/$/, '') + '/images/web-logo2.png';
@@ -50,9 +50,9 @@
     (async () => {
       // Prioritize development on port 3000 (emulator and localhost), then fall back to deployed remote
       const candidates = [
+        remote,
         'http://10.0.2.2:3000/', // Android emulator -> host localhost:3000
         'http://localhost:3000/',
-        remote
       ];
 
       let chosen = null;
