@@ -217,6 +217,10 @@ const requireAuth = (req, res, next) => {
   if (req.session.user) {
     next();
   } else {
+    // If the client expects HTML, redirect to login page for UX; otherwise return JSON
+    if (req.accepts && req.accepts('html')) {
+      return res.redirect('/login');
+    }
     res.status(401).json({ 
       success: false, 
       error: 'Authentication required' 
@@ -229,6 +233,11 @@ const requireAdmin = (req, res, next) => {
   if (req.session.user && req.session.user.isAdmin) {
     next();
   } else {
+    // For browser navigation, redirect to admin login page for a smoother UX
+    if (req.accepts && req.accepts('html')) {
+      return res.redirect('/admin-login');
+    }
+
     res.status(403).json({ 
       success: false, 
       error: 'Admin privileges required' 
@@ -276,7 +285,12 @@ app.get('/admin-login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin-login.html'));
 });
 
-app.get('/admin', requireAdmin, (req, res) => {
+app.get('/admin', (req, res) => {
+  // Serve admin page to admins; otherwise redirect browser navigations to /admin-login
+  if (!req.session?.user || !req.session.user.isAdmin) {
+    return res.redirect('/admin-login');
+  }
+
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
@@ -287,13 +301,21 @@ app.get('/admin', requireAdmin, (req, res) => {
 // Enhanced User Registration
 app.post('/api/signup', async (req, res) => {
   try {
-    const { email, password, firstName, lastName, phone } = req.body;
+    const { email, password, firstName, lastName, phone, acceptedTerms } = req.body;
     
     // Validation
     if (!email || !password || !firstName || !lastName || !phone) {
       return res.status(400).json({ 
         success: false, 
         error: 'All fields are required' 
+      });
+    }
+
+    // Terms acceptance validation
+    if (!acceptedTerms) {
+      return res.status(400).json({
+        success: false,
+        error: 'You must accept the Terms of Service and Privacy Policy to create an account'
       });
     }
 
@@ -358,7 +380,18 @@ app.post('/api/signup', async (req, res) => {
 // Enhanced User Login
 app.post('/api/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password, remember } = req.body;
+    // Coerce remember to boolean for safety (clients may send 'true'/'false' strings)
+    remember = (remember === true || remember === 'true');
+    console.log('Login attempt for:', email, 'remember=', remember);
+
+    // Enforce 'remember me' requirement: do not allow login unless user checked it
+    if (!remember) {
+      return res.status(400).json({
+        success: false,
+        error: 'You must check "Remember me" to sign in.'
+      });
+    }
     
     if (!email || !password) {
       return res.status(400).json({ 
@@ -400,6 +433,14 @@ app.post('/api/login', async (req, res) => {
           displayName: userRecord.displayName,
           isAdmin: true
         };
+
+        // Respect 'remember me' for admin sessions if provided
+        try {
+          const rememberMs = remember ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000; // 30 days || 24 hours
+          req.session.cookie.maxAge = rememberMs;
+        } catch (e) {
+          // Ignore if session cookie cannot be modified
+        }
 
         // Update last login
         await admin.database().ref('users/' + userRecord.uid).update({
@@ -456,6 +497,14 @@ app.post('/api/login', async (req, res) => {
       displayName: displayName || `${userData.firstName} ${userData.lastName}`,
       isAdmin: userData.isAdmin || false
     };
+
+    // Respect 'remember me' for regular user sessions
+    try {
+      const rememberMs = remember ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000; // 30 days || 24 hours
+      req.session.cookie.maxAge = rememberMs;
+    } catch (e) {
+      // Ignore if session cookie cannot be modified
+    }
 
     // Update last login
     await admin.database().ref('users/' + localId).update({
@@ -2008,6 +2057,54 @@ app.post('/api/admin/packages/toggle-active', requireAdmin, async (req, res) => 
   }
 });
 
+// Create a new package
+app.post('/api/admin/packages/create', requireAdmin, async (req, res) => {
+  try {
+    const { network, id, name, price, validity, active } = req.body;
+
+    if (!network || !id || !name || price === undefined) {
+      return res.status(400).json({ success: false, error: 'network, id, name and price are required' });
+    }
+
+    const packageRef = admin.database().ref(`packages/${network}/${id}`);
+    const snap = await packageRef.once('value');
+    if (snap.exists()) {
+      return res.status(400).json({ success: false, error: 'Package with that id already exists' });
+    }
+
+    const payload = {
+      name,
+      price: parseFloat(price),
+      validity: validity || null,
+      active: active === false ? false : true,
+      createdAt: new Date().toISOString()
+    };
+
+    await packageRef.set(payload);
+
+    // Update cache if present
+    if (packageCache[network]) {
+      packageCache[network].push({ id, ...payload });
+    }
+
+    // Log admin action
+    const logRef = admin.database().ref('adminLogs').push();
+    await logRef.set({
+      adminId: req.session.user.uid,
+      action: 'create_package',
+      targetPackage: id,
+      details: `Created package ${id} (${name}) on ${network}`,
+      timestamp: new Date().toISOString(),
+      ip: req.ip
+    });
+
+    res.json({ success: true, message: 'Package created successfully', package: { id, ...payload } });
+  } catch (error) {
+    console.error('Create package error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // 4. ORDER MANAGEMENT ENDPOINTS
 app.get('/api/admin/transactions', requireAdmin, async (req, res) => {
   try {
@@ -2079,6 +2176,31 @@ app.get('/api/admin/transactions', requireAdmin, async (req, res) => {
     res.json({ success: true, transactions: transactionsWithUsers });
   } catch (error) {
     console.error('Admin transactions error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get single transaction details
+app.get('/api/admin/transactions/:id', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const txRef = admin.database().ref(`transactions/${id}`);
+    const txSnap = await txRef.once('value');
+
+    if (!txSnap.exists()) {
+      return res.status(404).json({ success: false, error: 'Transaction not found' });
+    }
+
+    const transaction = txSnap.val();
+
+    // Attach user info if present
+    const userRef = admin.database().ref(`users/${transaction.userId}`);
+    const userSnap = await userRef.once('value');
+    const user = userSnap.exists() ? userSnap.val() : null;
+
+    res.json({ success: true, transaction: { id, ...transaction, user } });
+  } catch (error) {
+    console.error('Get transaction error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
